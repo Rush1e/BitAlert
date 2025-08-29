@@ -2,6 +2,35 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- =================================================================== -->
+    <!--                        CORE APP PERMISSIONS                         -->
+    <!-- =================================================================== -->
+
+    <!-- Allows the app to run a service in the foreground, essential for the relay -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <!-- Required for Bluetooth scanning, advertising, and connecting on Android 12+ -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Required for getting geo-tags for alerts. Bluetooth scanning also requires location. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Optional: For checking network state if you add fallback connectivity -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+
+    <!-- =================================================================== -->
+    <!--                        HARDWARE FEATURE DECLARATIONS                -->
+    <!-- =================================================================== -->
+    <!-- Declare that the app requires Bluetooth LE to function -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+    <!-- Declare that the app uses location -->
+    <uses-feature android:name="android.hardware.location.gps" android:required="true"/>
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -10,12 +39,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Bitalert">
-        <service
-            android:name=".MyService"
-            android:enabled="true"
-            android:exported="false"></service>
+        android:theme="@style/Theme.Bitalert"
+        tools:targetApi="31">
 
+        <!-- The Foreground Service for relaying alerts via Bluetooth -->
+        <!-- The service types are important for telling the OS what the service does -->
+        <service
+            android:name=".BitAlertService"
+            android:foregroundServiceType="connectedDevice|location"
+            android:exported="false"/>
+
+        <!-- The Main Activity with the UI -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -23,7 +57,6 @@
             android:theme="@style/Theme.Bitalert">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
